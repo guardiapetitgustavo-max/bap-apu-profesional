@@ -100,3 +100,18 @@ def test_recurso_apunta_a_assets():
 def test_version_compara():
     assert _version("1.10.0") > _version("1.9.9")
     assert _version("x") == (0,)
+
+
+def test_contexto_desde_sesion_lee_atributos():
+    from types import SimpleNamespace
+    sesion = SimpleNamespace(id=7, usuario="ana", nombre_completo="Ana Paz", rol="admin",
+                             permisos=frozenset({"apu.ver", "apu.editar"}),
+                             debe_cambiar_password=False, token="tok123")
+    ctx = Contexto.desde_sesion(sesion, 3)
+    assert ctx.usuario_id == 7
+    assert ctx.usuario == "ana"
+    assert ctx.nombre_completo == "Ana Paz"
+    assert ctx.rol == "admin"
+    assert ctx.permisos == frozenset({"apu.ver", "apu.editar"})
+    assert ctx.empresa_id == 3
+    assert ctx.token == "tok123"

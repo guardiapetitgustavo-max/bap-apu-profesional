@@ -24,11 +24,11 @@ class Contexto:
     @classmethod
     def desde_sesion(cls, sesion, empresa_id: int) -> "Contexto":
         return cls(
-            usuario_id=sesion["id"],
-            usuario=sesion["usuario"],
-            nombre_completo=sesion["nombre_completo"],
-            rol=sesion["rol"],
-            permisos=frozenset(sesion["permisos"]),
+            usuario_id=sesion.id,
+            usuario=sesion.usuario,
+            nombre_completo=sesion.nombre_completo,
+            rol=sesion.rol,
+            permisos=frozenset(sesion.permisos),
             empresa_id=empresa_id,
-            token=sesion["token"],
+            token=sesion.token,
         )
