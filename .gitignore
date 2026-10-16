@@ -8,3 +8,6 @@ dist/
 # Base de datos local de desarrollo
 apu.db
 *.db.instalando
+
+# Espacio de trabajo temporal
+.superpowers/
