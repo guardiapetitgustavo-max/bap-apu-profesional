@@ -141,3 +141,32 @@ def test_fixtures_db_y_ctx_admin(db, ctx_admin):
     assert ctx_admin.puede("usuarios.gestionar") and len(ctx_admin.permisos) == 22
     with db.lectura() as conn:
         assert conn.execute("SELECT COUNT(*) FROM empresas WHERE id=?", (ctx_admin.empresa_id,)).fetchone()[0] == 1
+
+
+def test_falla_sin_respaldo_no_menciona_none(tmp_path):
+    db = Database(tmp_path / "apu.db")
+
+    def rota(conn):
+        raise RuntimeError("falla simulada")
+
+    migraciones = MIGRACIONES + (Migracion(2, "rota", rota),)
+    with pytest.raises(ErrorMigracion) as info:
+        migrar(db, tmp_path / "respaldos", migraciones)
+    assert info.value.respaldo is None
+    assert "None" not in str(info.value)
+    assert "paso 2: rota" in str(info.value)
+    assert _user_version(db.ruta) == 1
+
+
+def test_respaldo_no_sobrescribe_destino_existente(tmp_path):
+    from bap_apu.data.migraciones.runner import respaldar_sqlite
+
+    origen = _copiar_fixture(tmp_path)
+    destino = tmp_path / "respaldos" / "pre_migracion_v0_20261016_120000.db"
+    destino.parent.mkdir()
+    destino.write_bytes(b"respaldo anterior valido")
+    escrito = respaldar_sqlite(origen, destino)
+    assert destino.read_bytes() == b"respaldo anterior valido"
+    assert escrito != destino
+    assert escrito == destino.with_name("pre_migracion_v0_20261016_120000_1.db")
+    assert _conteos(escrito) == _conteos(origen)

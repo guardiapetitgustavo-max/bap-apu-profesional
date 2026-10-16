@@ -29,10 +29,18 @@ VERSION_ESQUEMA = MIGRACIONES[-1].version
 
 
 def respaldar_sqlite(origen: Path, destino: Path) -> Path:
-    """Copia `origen` en `destino` con la API de respaldo y verifica la copia."""
+    """Copia `origen` en `destino` con la API de respaldo y verifica la copia.
+
+    Nunca toca un archivo existente: si `destino` ya existe, usa `nombre_1`,
+    `nombre_2`, ... y devuelve la ruta realmente escrita.
+    """
     destino = Path(destino)
     try:
         destino.parent.mkdir(parents=True, exist_ok=True)
+        destino = _reservar_nombre_libre(destino)
+    except OSError as exc:
+        raise ErrorMigracion(f"No se pudo crear el respaldo previo en {destino}: {exc}") from exc
+    try:
         with closing(sqlite3.connect(origen)) as fuente, closing(sqlite3.connect(destino)) as copia:
             fuente.backup(copia)
             estado = copia.execute("PRAGMA integrity_check").fetchone()[0]
@@ -43,6 +51,18 @@ def respaldar_sqlite(origen: Path, destino: Path) -> Path:
         _borrar(destino)
         raise ErrorMigracion(f"El respaldo previo en {destino} no superó la verificación de integridad: {estado}")
     return destino
+
+
+def _reservar_nombre_libre(destino: Path) -> Path:
+    """Crea en exclusiva un archivo vacío con el primer nombre libre y lo devuelve."""
+    candidato, n = destino, 0
+    while True:
+        try:
+            with open(candidato, "xb"):
+                return candidato
+        except FileExistsError:
+            n += 1
+            candidato = destino.with_name(f"{destino.stem}_{n}{destino.suffix}")
 
 
 def _borrar(ruta: Path) -> None:
@@ -89,11 +109,10 @@ def migrar(db, carpeta_respaldos: Path, migraciones=MIGRACIONES) -> ResultadoMig
             except Exception as exc:
                 if conn.in_transaction:
                     conn.execute("ROLLBACK")
-                raise ErrorMigracion(
-                    f"No se pudo actualizar la base de datos (paso {m.version}: {m.nombre}): {exc}. "
-                    f"Sus datos están respaldados en: {respaldo}",
-                    respaldo,
-                ) from exc
+                mensaje = f"No se pudo actualizar la base de datos (paso {m.version}: {m.nombre}): {exc}."
+                if respaldo is not None:
+                    mensaje += f" Sus datos están respaldados en: {respaldo}"
+                raise ErrorMigracion(mensaje, respaldo) from exc
     finally:
         conn.close()
     return ResultadoMigracion(v, objetivo, respaldo)
