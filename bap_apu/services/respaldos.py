@@ -10,7 +10,7 @@ from pathlib import Path
 from bap_apu.arranque import preparar_base
 from bap_apu.contexto import Contexto
 from bap_apu.data.db import Database
-from bap_apu.data.migraciones.runner import ErrorMigracion, respaldar_sqlite
+from bap_apu.data.migraciones.runner import respaldar_sqlite
 from bap_apu.data.repos import auditoria, respaldos
 from bap_apu.errores import ErrorValidacion
 
@@ -51,11 +51,12 @@ class RespaldoService:
             raise
         try:
             preparar_base(self._db, self._carpeta_datos)
-        except ErrorMigracion:
+        except Exception:
             shutil.copy2(emergencia, destino)
             raise
         with self._db.transaccion() as conn:
-            auditoria.registrar(conn, ctx.usuario_id, "RESPALDO_RESTAURADO", "respaldos", origen.name)
+            existe = conn.execute("SELECT 1 FROM usuarios WHERE id=?", (ctx.usuario_id,)).fetchone()
+            auditoria.registrar(conn, ctx.usuario_id if existe else None, "RESPALDO_RESTAURADO", "respaldos", origen.name)
         return str(emergencia)
 
 

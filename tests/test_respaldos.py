@@ -81,3 +81,28 @@ def test_migracion_fallida_vuelve_a_emergencia(db, ctx_admin, tmp_path):
     with pytest.raises(ErrorMigracion):
         RespaldoService(db, tmp_path).restaurar(ctx_admin, respaldo)
     assert _nombre(db.ruta) == antes
+
+
+def test_restaurar_audita_con_usuario_nulo_si_no_existe_en_la_base_restaurada(db, ctx_admin, tmp_path):
+    from dataclasses import replace
+    ctx = replace(ctx_admin, usuario_id=999)
+    respaldo = _copia_modificada(db, tmp_path / "otro.db", "Sin usuario")
+    emergencia = RespaldoService(db, tmp_path).restaurar(ctx, respaldo)
+    assert Path(emergencia).is_file()
+    with db.lectura() as conn:
+        filas = conn.execute(
+            "SELECT usuario_id FROM auditoria WHERE accion='RESPALDO_RESTAURADO'").fetchall()
+    assert filas == [(None,)]
+
+
+def test_cualquier_fallo_al_preparar_vuelve_a_emergencia(db, ctx_admin, tmp_path, monkeypatch):
+    antes = _nombre(db.ruta)
+    respaldo = _copia_modificada(db, tmp_path / "otro.db", "Nueva")
+
+    def falla(*args, **kwargs):
+        raise sqlite3.OperationalError("disco lleno")
+
+    monkeypatch.setattr("bap_apu.services.respaldos.preparar_base", falla)
+    with pytest.raises(sqlite3.OperationalError):
+        RespaldoService(db, tmp_path).restaurar(ctx_admin, respaldo)
+    assert _nombre(db.ruta) == antes

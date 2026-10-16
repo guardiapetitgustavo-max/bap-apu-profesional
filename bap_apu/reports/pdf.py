@@ -9,36 +9,7 @@ from bap_apu.paths import recurso
 def exportar_apu_pdf(nombre_proyecto, datos_apu, subtotales, total_general, ruta_guardado):
     """Genera un archivo PDF profesional con el Análisis de Precios Unitarios."""
     
-    try:
-        import winreg
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders")
-        desktop, _ = winreg.QueryValueEx(key, "Desktop")
-        desktop = os.path.expandvars(desktop)
-    except Exception:
-        user_home = os.path.expanduser("~")
-        onedrive_desktop = os.path.join(user_home, "OneDrive", "Escritorio")
-        onedrive_desktop_en = os.path.join(user_home, "OneDrive", "Desktop")
-        local_desktop = os.path.join(user_home, "Desktop")
-        local_escritorio = os.path.join(user_home, "Escritorio")
-        
-        if os.path.exists(onedrive_desktop):
-            desktop = onedrive_desktop
-        elif os.path.exists(onedrive_desktop_en):
-            desktop = onedrive_desktop_en
-        elif os.path.exists(local_escritorio):
-            desktop = local_escritorio
-        else:
-            desktop = local_desktop
-
-    if not os.path.exists(desktop):
-        desktop = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-    nombre_limpio = nombre_proyecto
-    caracteres_prohibidos = ["/", "\\", ":", "*", "?", '"', "<", ">", "|"]
-    for caracter in caracteres_prohibidos:
-        nombre_limpio = nombre_limpio.replace(caracter, "_")
-        
-    filename = ruta_guardado or os.path.join(desktop, f"APU_{nombre_limpio}.pdf")
+    filename = ruta_guardado
     carpeta_destino = os.path.dirname(os.path.abspath(filename))
     if not os.path.isdir(carpeta_destino):
         raise FileNotFoundError(f"La carpeta de destino no existe: {carpeta_destino}")
@@ -55,8 +26,6 @@ def exportar_apu_pdf(nombre_proyecto, datos_apu, subtotales, total_general, ruta
 
     ruta_logo = str(recurso("assets", "bap_logo_principal.png"))
 
-    print (f"Buscando Imagen en: {ruta_logo}")  # Debug: Verificar la ruta del logo
-
     try:
         ancho_deseado = 215
         from reportlab.lib.utils import ImageReader
@@ -68,9 +37,8 @@ def exportar_apu_pdf(nombre_proyecto, datos_apu, subtotales, total_general, ruta
         logo.hAlign = 'CENTER'
         story.append(logo)
         story.append(Spacer(1, 15))
-        print("Logo agregado al PDF correctamente.")  # Debug: Confirmar que el logo se agregó
-    except Exception as e:
-        print(f"Error al cargar el logo: {e}")  # Debug: Mostrar error si el logo no se carga
+    except Exception:
+        pass  # sin logo el PDF se genera igual
 
     # 1. Encabezado del Reporte
     story.append(Paragraph(APP_NAME.upper(), title_style))
@@ -144,5 +112,4 @@ def exportar_apu_pdf(nombre_proyecto, datos_apu, subtotales, total_general, ruta
     story.append(Paragraph(WEBSITE, pie_style))
 
     doc.build(story)
-    return filename
 
