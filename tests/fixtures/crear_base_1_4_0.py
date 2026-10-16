@@ -17,8 +17,11 @@ sys.stdout.reconfigure(encoding="utf-8")  # el código legado imprime un emoji
 RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ))
 
-import database  # noqa: E402  (código legado 1.4.0)
-from security.passwords import hash_password  # noqa: E402
+import importlib  # noqa: E402
+
+# Código legado 1.4.0: solo existe en el worktree del commit 71fd64f.
+database = importlib.import_module("database")
+hash_password = importlib.import_module("security.passwords").hash_password
 
 
 def crear(salida):

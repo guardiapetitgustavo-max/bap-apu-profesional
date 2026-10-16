@@ -1,5 +1,5 @@
 #define MyAppName "BAP APU Profesional"
-#define MyAppVersion "1.4.0"
+#define MyAppVersion "1.5.0"
 #define MyAppPublisher "BAP Soluciones Tecnológicas"
 #define MyAppURL "https://bap-soluciones-tecnologicas.quick-spark-9180.chatgpt.site"
 #define MyAppExeName "BAP_APU_Profesional.exe"
@@ -9,7 +9,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 DefaultDirName={autopf}\BAP APU Profesional
 DefaultGroupName={#MyAppName}
-OutputBaseFilename=Instalador_BAP_APU_Profesional_1.4.0
+OutputBaseFilename=Instalador_BAP_APU_Profesional_1.5.0
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}

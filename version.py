@@ -1,3 +1,0 @@
-from brand import APP_NAME, APP_VERSION
-
-UPDATE_MANIFEST_URL = ""

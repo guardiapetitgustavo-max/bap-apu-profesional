@@ -1,9 +1,11 @@
-# Estado comercial de BAP APU Profesional 1.4.0
+# Estado comercial de BAP APU Profesional 1.5.0
 
 ## Cambios aplicados
 
-- Identidad comercial centralizada en `brand.py`.
-- Nombre BAP APU Profesional y versión 1.4.0.
+- Identidad comercial centralizada en `bap_apu/brand.py`.
+- Nombre BAP APU Profesional y versión 1.5.0.
+- Código reorganizado en el paquete `bap_apu` (datos, servicios e interfaz separados); retirado el código legado 1.4.0.
+- La base se actualiza sola al iniciar, con respaldo previo en `respaldos\`.
 - Logo BAP en acceso, menú, ejecutable, instalador y PDF.
 - Colores BAP en reportes.
 - Contacto y sitio web de BAP en el sistema y PDF.
@@ -14,6 +16,8 @@
 - Nombres comerciales para ejecutable e instalador.
 
 ## Validaciones pendientes en Windows
+
+0. Probar a mano la 1.5.0: iniciar sesión, cambiar contraseña, crear proyecto, agregar recurso al APU, exportar PDF y Excel, crear y restaurar respaldo, y abrir una base 1.4.0 real (se debe migrar con respaldo previo).
 
 1. Generar el ejecutable con PyInstaller.
 2. Probar en una instalación limpia de Windows 10 y Windows 11.

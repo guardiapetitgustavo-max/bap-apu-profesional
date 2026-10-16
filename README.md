@@ -1,4 +1,4 @@
-# BAP APU Profesional 1.4.0 - edición comercial offline
+# BAP APU Profesional 1.5.0 - edición comercial offline
 
 Aplicación de BAP Soluciones Tecnológicas para el análisis de precios
 unitarios en Windows 10 y Windows 11 de 64 bits.
@@ -32,6 +32,16 @@ unitarios en Windows 10 y Windows 11 de 64 bits.
 - La base personal se guarda en `%LOCALAPPDATA%\BAP_APU_Profesional\apu.db`.
 - Las actualizaciones del aplicativo no reemplazan la información del cliente.
 
+## Estructura del proyecto
+
+- `main.py`: punto de entrada mínimo (arranque, licencia, inicio de sesión).
+- `bap_apu/core/`: cálculo puro, sin base de datos ni interfaz.
+- `bap_apu/data/`: base de datos, migraciones, semillas y repositorios (todo el SQL).
+- `bap_apu/services/`: reglas de negocio y permisos.
+- `bap_apu/ui/`: interfaz customtkinter (`app.py`, `login.py`, `views/`); nunca toca SQL.
+- `bap_apu/licensing/`, `bap_apu/reports/`, `bap_apu/security/`: licencias, PDF/Excel y contraseñas.
+- `bap_apu/servicios.py`: contenedor que arma todos los servicios al iniciar.
+
 ## Ejecutar la aplicación
 
 ```powershell
@@ -44,6 +54,13 @@ py main.py
 Acceso inicial: usuario `admin`, contraseña temporal `admin123`. El sistema
 obliga a cambiarla inmediatamente.
 
+## Ejecutar las pruebas
+
+```powershell
+py -m pip install -r requirements-dev.txt
+.venv\Scripts\python -m pytest -q
+```
+
 ## Crear ejecutable e instalador
 
 ```powershell
@@ -52,7 +69,7 @@ py -m PyInstaller --clean --noconfirm main.spec
 ```
 
 Abra `installer/BAP_APU_Profesional.iss` con Inno Setup y pulse **Compile**. El
-instalador resultante se llamará `Instalador_BAP_APU_Profesional_1.4.0.exe`.
+instalador resultante se llamará `Instalador_BAP_APU_Profesional_1.5.0.exe`.
 
 No requiere servidor, dominio, conexión permanente ni pasarela de pagos.
 El cliente puede pagar mediante Yape, Plin o transferencia y recibir su archivo
