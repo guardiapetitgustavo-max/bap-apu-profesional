@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+build/
+dist/
+.venv/
+*.spec.bak
+
+# Base de datos local de desarrollo
+apu.db
+*.db.instalando
