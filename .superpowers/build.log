@@ -1,0 +1,98 @@
+404 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.8
+405 INFO: Python: 3.12.6
+439 INFO: Platform: Windows-11-10.0.26200-SP0
+439 INFO: Python environment: C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\.venv
+444 INFO: Removing temporary files and cleaning cache in C:\Users\Gustavo\AppData\Local\pyinstaller
+447 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu',
+ 'C:\\Users\\Gustavo\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip',
+ 'C:\\Users\\Gustavo\\AppData\\Local\\Programs\\Python\\Python312\\DLLs',
+ 'C:\\Users\\Gustavo\\AppData\\Local\\Programs\\Python\\Python312\\Lib',
+ 'C:\\Users\\Gustavo\\AppData\\Local\\Programs\\Python\\Python312',
+ 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv',
+ 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages',
+ 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu']
+1157 INFO: Appending 'datas' from .spec
+1160 INFO: checking Analysis
+1160 INFO: Building Analysis because Analysis-00.toc is non existent
+1160 INFO: Looking for Python shared library...
+1164 INFO: Using Python shared library: C:\Users\Gustavo\AppData\Local\Programs\Python\Python312\python312.dll
+1168 INFO: Running Analysis Analysis-00.toc
+1168 INFO: Target bytecode optimization level: 0
+1168 INFO: Initializing module dependency graph...
+1173 INFO: Initializing module graph hook caches...
+1232 INFO: Analyzing modules for base_library.zip ...
+4132 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+5126 INFO: Processing standard module hook 'hook-math.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+7014 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+8849 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+10510 INFO: Caching module dependency graph...
+10547 INFO: Analyzing C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\main.py
+10549 INFO: Processing pre-find-module-path hook 'hook-tkinter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+10551 INFO: TclTkInfo: initializing cached Tcl/Tk info...
+11206 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+11252 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+12025 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+12064 INFO: Processing standard module hook 'hook-cryptography.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+13889 INFO: hook-cryptography: cryptography does not seem to be using dynamically linked OpenSSL.
+14206 INFO: Processing standard module hook 'hook-openpyxl.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+14747 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+14812 INFO: Processing standard module hook 'hook-xml.etree.cElementTree.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+15219 INFO: Processing standard module hook 'hook-PIL.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+15313 INFO: Processing standard module hook 'hook-PIL.Image.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+15983 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+15985 INFO: SetuptoolsInfo: initializing cached setuptools info...
+17229 INFO: Processing standard module hook 'hook-PIL.ImageFilter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+18247 INFO: Processing standard module hook 'hook-reportlab.lib.utils.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+18917 INFO: Processing standard module hook 'hook-reportlab.pdfbase._fontdata.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+19930 INFO: Processing standard module hook 'hook-charset_normalizer.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+20502 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+20904 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+21217 INFO: Processing standard module hook 'hook-webbrowser.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+21862 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+22611 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+24938 INFO: Processing standard module hook 'hook-xml.dom.domreg.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+25034 INFO: Processing standard module hook 'hook-customtkinter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+25265 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+26088 INFO: Processing module hooks (post-graph stage)...
+26448 INFO: Processing standard module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+26709 INFO: Processing standard module hook 'hook-_tkinter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks'
+26737 INFO: Performing binary vs. data reclassification (946 entries)
+38625 INFO: Looking for ctypes DLLs
+38680 WARNING: Ignoring AppKit.framework/AppKit imported from C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\.venv\Lib\site-packages\darkdetect\_mac_detect.py - only basenames are supported with ctypes imports!
+38755 INFO: Analyzing run-time hooks ...
+38763 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+38768 INFO: Including run-time hook 'pyi_rth_cryptography_openssl.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks'
+38770 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+38784 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+38809 INFO: Including run-time hook 'pyi_rth__tkinter.py' from 'C:\\Users\\Gustavo\\OneDrive\\Documentos\\la-marea\\bap-apu\\.venv\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+38936 INFO: Creating base_library.zip...
+39144 INFO: Looking for dynamic libraries
+42831 INFO: Extra DLL search directories (AddDllDirectory): []
+42831 INFO: Extra DLL search directories (PATH): []
+46113 INFO: Warnings written to C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\build\main\warn-main.txt
+46243 INFO: Graph cross-reference written to C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\build\main\xref-main.html
+46442 INFO: checking PYZ
+46443 INFO: Building PYZ because PYZ-00.toc is non existent
+46443 INFO: Building PYZ (ZlibArchive) C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\build\main\PYZ-00.pyz
+47207 INFO: Building PYZ (ZlibArchive) C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\build\main\PYZ-00.pyz completed successfully.
+47294 INFO: checking PKG
+47299 INFO: Building PKG because PKG-00.toc is non existent
+47300 INFO: Building PKG (CArchive) BAP_APU_Profesional.pkg
+47388 INFO: Building PKG (CArchive) BAP_APU_Profesional.pkg completed successfully.
+47391 INFO: Bootloader C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\.venv\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+47391 INFO: checking EXE
+47391 INFO: Building EXE because EXE-00.toc is non existent
+47391 INFO: Building EXE from EXE-00.toc
+47392 INFO: Copying bootloader EXE to C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\build\main\BAP_APU_Profesional.exe
+48607 INFO: Copying icon to EXE
+48685 INFO: Copying 0 resources to EXE
+48685 INFO: Embedding manifest in EXE
+48740 INFO: Appending PKG archive to EXE
+48825 INFO: Fixing EXE headers
+49675 INFO: Building EXE from EXE-00.toc completed successfully.
+49690 INFO: checking COLLECT
+49690 INFO: Building COLLECT because COLLECT-00.toc is non existent
+49697 INFO: Building COLLECT COLLECT-00.toc
+58911 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+58938 INFO: Build complete! The results are available in: C:\Users\Gustavo\OneDrive\Documentos\la-marea\bap-apu\dist

@@ -5,10 +5,19 @@ from tkinter import messagebox
 class VistaTerceros(ctk.CTkFrame):
     def __init__(self,parent,servicios,ctx):
         super().__init__(parent); self.servicios=servicios; self.ctx=ctx
-        self.can_edit=ctx.puede("clientes.editar") or ctx.puede("proveedores.editar")
+        self.edit_clientes=ctx.puede("clientes.editar"); self.edit_proveedores=ctx.puede("proveedores.editar")
         ctk.CTkLabel(self,text="CLIENTES Y PROVEEDORES",font=("Arial",22,"bold")).pack(pady=15)
         tabs=ctk.CTkTabview(self); tabs.pack(fill="both",expand=True,padx=20,pady=(0,20))
-        self._crear_tab_clientes(tabs.add("Clientes")); self._crear_tab_proveedores(tabs.add("Proveedores"))
+        tab=tabs.add("Clientes")
+        if ctx.puede("clientes.ver"): self._crear_tab_clientes(tab)
+        else: self._sin_permiso(tab,"clientes")
+        tab=tabs.add("Proveedores")
+        if ctx.puede("proveedores.ver"): self._crear_tab_proveedores(tab)
+        else: self._sin_permiso(tab,"proveedores")
+
+    @staticmethod
+    def _sin_permiso(tab,nombre):
+        ctk.CTkLabel(tab,text=f"Su rol no permite consultar {nombre}.").pack(pady=30)
 
     def _entrada(self,parent,placeholder):
         e=ctk.CTkEntry(parent,placeholder_text=placeholder,width=200); e.pack(side="left",padx=4,pady=10); return e
@@ -17,14 +26,14 @@ class VistaTerceros(ctk.CTkFrame):
         form=ctk.CTkFrame(tab); form.pack(fill="x",pady=8)
         self.c_doc=self._entrada(form,"RUC/DNI"); self.c_nombre=self._entrada(form,"Nombre o razón social"); self.c_tel=self._entrada(form,"Teléfono"); self.c_email=self._entrada(form,"Email")
         b=ctk.CTkButton(form,text="Agregar",width=100,command=self.guardar_cliente); b.pack(side="right",padx=8)
-        if not self.can_edit:b.configure(state="disabled")
+        if not self.edit_clientes:b.configure(state="disabled")
         self.lista_clientes=ctk.CTkScrollableFrame(tab); self.lista_clientes.pack(fill="both",expand=True); self.cargar_clientes()
 
     def _crear_tab_proveedores(self,tab):
         form=ctk.CTkFrame(tab); form.pack(fill="x",pady=8)
         self.p_ruc=self._entrada(form,"RUC"); self.p_nombre=self._entrada(form,"Proveedor"); self.p_contacto=self._entrada(form,"Contacto"); self.p_tel=self._entrada(form,"Teléfono")
         b=ctk.CTkButton(form,text="Agregar",width=100,command=self.guardar_proveedor); b.pack(side="right",padx=8)
-        if not self.can_edit:b.configure(state="disabled")
+        if not self.edit_proveedores:b.configure(state="disabled")
         self.lista_proveedores=ctk.CTkScrollableFrame(tab); self.lista_proveedores.pack(fill="both",expand=True); self.cargar_proveedores()
 
     def _fila(self,parent,valores):

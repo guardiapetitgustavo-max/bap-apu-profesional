@@ -79,8 +79,7 @@ class AppAPU(ctk.CTk):
 
     def mostrar_dashboard(self):
         self.limpiar_vista()
-        self.vista_actual = VistaDashboard(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaDashboard)
 
     def logout(self):
         self.servicios.auth.cerrar_sesion(self.sesion)
@@ -137,43 +136,45 @@ class AppAPU(ctk.CTk):
     def limpiar_vista(self):
         if self.vista_actual:
             self.vista_actual.destroy()
+            self.vista_actual = None
+
+    def _mostrar(self, clase):
+        try:
+            vista = clase(self.contenedor, self.servicios, self.ctx)
+        except PermissionError as e:
+            messagebox.showerror("Acceso denegado", str(e))
+            return
+        self.vista_actual = vista
+        vista.pack(fill="both", expand=True)
 
     def mostrar_proyectos(self):
         self.limpiar_vista()
-        self.vista_actual = VistaProyectos(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaProyectos)
 
     def mostrar_recursos(self):
         self.limpiar_vista()
-        self.vista_actual = VistaRecursos(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaRecursos)
 
     def mostrar_apu(self):
         self.limpiar_vista()
-        self.vista_actual = VistaAPU(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaAPU)
 
     def mostrar_partidas(self):
         self.limpiar_vista()
-        self.vista_actual = VistaPartidas(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaPartidas)
 
     def mostrar_usuarios(self):
         self.limpiar_vista()
-        self.vista_actual = VistaUsuarios(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaUsuarios)
 
     def mostrar_terceros(self):
         self.limpiar_vista()
-        self.vista_actual = VistaTerceros(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaTerceros)
 
     def mostrar_reportes(self):
         self.limpiar_vista()
-        self.vista_actual = VistaReportes(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaReportes)
 
     def mostrar_configuracion(self):
         self.limpiar_vista()
-        self.vista_actual = VistaConfiguracion(self.contenedor, self.servicios, self.ctx)
-        self.vista_actual.pack(fill="both", expand=True)
+        self._mostrar(VistaConfiguracion)

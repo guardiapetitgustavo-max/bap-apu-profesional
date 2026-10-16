@@ -71,3 +71,29 @@ def test_vista_se_construye(raiz, db, tmp_path, ctx_admin, clase):
     vista = clase(raiz, servicios, ctx_admin)
     vista.update()
     vista.destroy()
+
+
+MENU = [
+    (VistaDashboard, "dashboard.ver"), (VistaProyectos, "proyectos.ver"),
+    (VistaRecursos, "recursos.ver"), (VistaPartidas, "partidas.ver"),
+    (VistaAPU, "apu.ver"), (VistaTerceros, "clientes.ver"),
+    (VistaReportes, "reportes.ver"), (VistaUsuarios, "usuarios.gestionar"),
+    (VistaConfiguracion, "licencias.ver"),
+]
+
+
+@pytest.mark.parametrize("rol", ["Administrador", "Gerente", "Ingeniero", "Presupuestador", "Consulta"])
+def test_vistas_segun_rol(raiz, db, tmp_path, ctx_admin, rol):
+    from dataclasses import replace
+    with db.lectura() as conn:
+        permisos = frozenset(f[0] for f in conn.execute(
+            """SELECT p.codigo FROM rol_permisos rp JOIN permisos p ON p.id = rp.permiso_id
+               JOIN roles r ON r.id = rp.rol_id WHERE r.nombre = ?""", (rol,)))
+    assert permisos, rol
+    ctx = replace(ctx_admin, rol=rol, permisos=permisos)
+    servicios = crear_servicios(db, tmp_path)
+    for clase, permiso in MENU:
+        if ctx.puede(permiso):
+            vista = clase(raiz, servicios, ctx)
+            vista.update()
+            vista.destroy()
