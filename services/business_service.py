@@ -2,6 +2,7 @@ import hashlib
 import os
 import shutil
 import sqlite3
+from contextlib import closing
 from datetime import date, datetime
 from pathlib import Path
 
@@ -129,7 +130,7 @@ def restaurar_respaldo(actor_id, ruta_respaldo):
 
     requeridas = {"empresas", "usuarios", "proyectos", "recursos", "detalle_apu"}
     try:
-        with sqlite3.connect(f"file:{origen.as_posix()}?mode=ro", uri=True) as prueba:
+        with closing(sqlite3.connect(f"file:{origen.as_posix()}?mode=ro", uri=True)) as prueba:
             integridad = prueba.execute("PRAGMA integrity_check").fetchone()[0]
             tablas = {fila[0] for fila in prueba.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     except sqlite3.DatabaseError as exc:

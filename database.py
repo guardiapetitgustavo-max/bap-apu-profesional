@@ -2,7 +2,7 @@ import os
 import shutil
 import sqlite3
 import sys
-from contextlib import contextmanager
+from contextlib import closing, contextmanager
 from pathlib import Path
 
 
@@ -14,7 +14,7 @@ def _es_base_apu_valida(ruta):
     if not ruta.is_file():
         return False
     try:
-        with sqlite3.connect(f"file:{ruta.resolve().as_posix()}?mode=ro", uri=True) as conn:
+        with closing(sqlite3.connect(f"file:{ruta.resolve().as_posix()}?mode=ro", uri=True)) as conn:
             if conn.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 return False
             tablas = {fila[0] for fila in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
@@ -51,8 +51,18 @@ def _resolver_db_path():
 
 DB_PATH = _resolver_db_path()
 
+class ConexionCerrable(sqlite3.Connection):
+    """Conexión cuyo `with` confirma o revierte y además la cierra."""
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            return super().__exit__(exc_type, exc_value, traceback)
+        finally:
+            self.close()
+
+
 def conectar():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH, factory=ConexionCerrable)
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA busy_timeout = 5000")
     return conn
