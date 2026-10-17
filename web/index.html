@@ -4,30 +4,205 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BAP APU Profesional</title>
-  <meta name="description" content="Análisis de precios unitarios y presupuestos de obra">
+  <meta name="description" content="Presupuestos de obra y análisis de precios unitarios en la nube, hechos para ingenieros y constructoras del Perú.">
   <link rel="icon" href="assets/bap_isotipo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#070d18;--panel:#0f1a2c;--line:#1f3150;--txt:#eef3fb;--mute:#93a4c0;--teal:#21c4b8;--gold:#f7b844;--coral:#ff6b6b;--violet:#8f7bff}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Outfit,system-ui,sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
+    /* Fondo */
+    .orbe{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;pointer-events:none;animation:flota 14s ease-in-out infinite alternate}
+    @keyframes flota{to{transform:translate(40px,30px) scale(1.1)}}
+    .malla{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at 50% 30%,#000 30%,transparent 75%);pointer-events:none}
+    /* Navegación */
+    header{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(7,13,24,.7);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px}
+    .logo img{width:36px;height:36px}
+    .logo span{background:linear-gradient(90deg,var(--teal),var(--gold));-webkit-background-clip:text;color:transparent}
+    .enlaces{display:flex;gap:26px;color:var(--mute);font-weight:500}
+    .enlaces a:hover{color:var(--txt)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:700;font-size:15px;transition:.2s;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+    .btn:hover{transform:translateY(-2px);border-color:#35507a}
+    .btn.pri{background:linear-gradient(90deg,var(--teal),#19a99f);color:#032220;border:0;box-shadow:0 10px 30px rgba(33,196,184,.35)}
+    .btn.oro{background:var(--gold);color:#2b1c00;border:0;box-shadow:0 10px 30px rgba(247,184,68,.3)}
+    /* Hero */
+    .hero{position:relative;padding:90px 0 60px;overflow:hidden}
+    .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:50px;align-items:center;position:relative}
+    .pildora{display:inline-flex;gap:8px;align-items:center;padding:7px 14px;border-radius:999px;background:rgba(33,196,184,.1);border:1px solid rgba(33,196,184,.35);color:var(--teal);font-size:13px;font-weight:700}
+    .pildora i{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 12px var(--teal)}
+    h1{font-size:clamp(40px,5.6vw,68px);line-height:1.02;margin:18px 0;font-weight:900;letter-spacing:-.02em}
+    h1 em{font-style:normal;background:linear-gradient(90deg,var(--teal) 0%,var(--gold) 55%,var(--coral) 100%);-webkit-background-clip:text;color:transparent}
+    .lead{font-size:19px;color:var(--mute);line-height:1.55;max-width:540px}
+    .ctas{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 18px}
+    .confianza{display:flex;gap:22px;color:var(--mute);font-size:14px;flex-wrap:wrap}
+    .confianza b{color:var(--txt)}
+    .marco{position:relative;border-radius:20px;padding:10px;background:linear-gradient(140deg,rgba(33,196,184,.6),rgba(143,123,255,.5),rgba(247,184,68,.55));box-shadow:0 40px 90px rgba(0,0,0,.6);transform:perspective(1400px) rotateY(-9deg) rotateX(4deg)}
+    .marco img{display:block;width:100%;border-radius:13px}
+    .flotante{position:absolute;background:rgba(15,26,44,.92);border:1px solid var(--line);border-radius:16px;padding:14px 18px;backdrop-filter:blur(8px);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+    .flotante small{display:block;color:var(--mute);font-size:12px}
+    .flotante b{font-size:24px;font-weight:900}
+    .f1{left:-34px;bottom:30px}.f1 b{color:var(--gold)}
+    .f2{right:-20px;top:-22px}.f2 b{color:var(--teal)}
+    /* Secciones */
+    section{position:relative;padding:90px 0}
+    .titulo-sec{text-align:center;max-width:720px;margin:0 auto 50px}
+    .titulo-sec .etiqueta{color:var(--gold);font-weight:700;letter-spacing:.14em;font-size:13px;text-transform:uppercase}
+    .titulo-sec h2{font-size:clamp(30px,4vw,46px);margin:10px 0;font-weight:900;letter-spacing:-.01em}
+    .titulo-sec p{color:var(--mute);font-size:18px;line-height:1.5}
+    .funciones{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .fun{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px;position:relative;overflow:hidden;transition:.25s}
+    .fun:hover{transform:translateY(-4px);border-color:var(--c)}
+    .fun::after{content:"";position:absolute;right:-50px;top:-50px;width:140px;height:140px;border-radius:50%;background:var(--c);opacity:.13}
+    .icono{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;font-size:24px;background:var(--c);color:#06121f;margin-bottom:16px}
+    .fun h3{margin:0 0 8px;font-size:20px}
+    .fun p{margin:0;color:var(--mute);line-height:1.5}
+    /* Demo */
+    .demo{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
+    .calc{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:26px}
+    .calc label{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px;color:var(--mute);font-weight:500}
+    .calc label b{color:var(--txt);font-family:"JetBrains Mono",monospace}
+    input[type=range]{width:100%;accent-color:var(--teal)}
+    .formula{margin-top:20px;padding:18px;border-radius:14px;background:#0a1322;font-family:"JetBrains Mono",monospace;font-size:14px;color:var(--mute);line-height:1.8}
+    .formula b{color:var(--gold)}
+    .resultado{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px}
+    .resultado span{color:var(--mute)}
+    .resultado b{font-size:40px;font-weight:900;color:var(--teal)}
+    .lista{list-style:none;padding:0;margin:20px 0 0;display:grid;gap:12px}
+    .lista li{display:flex;gap:12px;align-items:flex-start;color:var(--mute);line-height:1.45}
+    .lista li::before{content:"✓";flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:rgba(33,196,184,.15);color:var(--teal);font-weight:900;font-size:13px}
+    .lista b{color:var(--txt)}
+    /* Pasos */
+    .pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:p}
+    .paso{padding:28px;border-radius:20px;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent);border:1px solid var(--line)}
+    .paso::before{counter-increment:p;content:"0" counter(p);font-family:"JetBrains Mono",monospace;font-weight:700;font-size:38px;background:linear-gradient(90deg,var(--teal),var(--violet));-webkit-background-clip:text;color:transparent}
+    .paso h3{margin:10px 0 8px;font-size:20px}.paso p{margin:0;color:var(--mute);line-height:1.5}
+    /* Roles */
+    .roles{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+    .rol{padding:14px 20px;border-radius:14px;border:1px solid var(--line);background:var(--panel);min-width:190px}
+    .rol b{display:block;font-size:17px}.rol small{color:var(--mute)}
+    .rol:nth-child(1){box-shadow:inset 4px 0 0 var(--gold)}.rol:nth-child(2){box-shadow:inset 4px 0 0 var(--coral)}.rol:nth-child(3){box-shadow:inset 4px 0 0 var(--teal)}.rol:nth-child(4){box-shadow:inset 4px 0 0 var(--violet)}.rol:nth-child(5){box-shadow:inset 4px 0 0 #7ee081}
+    /* CTA final */
+    .final{margin:0 22px 70px;border-radius:30px;padding:70px 30px;text-align:center;position:relative;overflow:hidden;background:linear-gradient(120deg,#0f3b45,#1d2a5e 55%,#4a2340)}
+    .final h2{font-size:clamp(30px,4.4vw,52px);margin:0 0 12px;font-weight:900}
+    .final p{color:#c6d3e8;font-size:18px;margin:0 0 28px}
+    footer{border-top:1px solid var(--line);padding:30px 0;color:var(--mute);font-size:14px}
+    footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .aparece{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+    .aparece.visto{opacity:1;transform:none}
+    @media (max-width:900px){
+      .enlaces{display:none}.hero{padding-top:50px}
+      .hero-grid,.demo{grid-template-columns:1fr}.funciones,.pasos{grid-template-columns:1fr}
+      .marco{transform:none}.f1{left:10px;bottom:-24px}.f2{right:10px}
+      .nav .btn:not(.pri){display:none}
+    }
+    @media (prefers-reduced-motion:reduce){.orbe{animation:none}.aparece{opacity:1;transform:none;transition:none}}
+  </style>
 </head>
 <body>
-  <aside class="sidebar">
-    <div class="marca">
-      <img src="assets/bap_isotipo.png" alt="">
-      <div><strong>BAP APU</strong><span>Profesional · Web</span></div>
+  <header><div class="wrap nav">
+    <a class="logo" href="#"><img src="assets/bap_isotipo.png" alt=""><span>BAP APU</span></a>
+    <nav class="enlaces"><a href="#funciones">Funciones</a><a href="#calculo">Cómo calcula</a><a href="#equipo">Equipo</a><a href="#contacto">Contacto</a></nav>
+    <div style="display:flex;gap:10px"><a class="btn" href="app">Ingresar</a><a class="btn pri" href="app#registro">Crear cuenta</a></div>
+  </div></header>
+
+  <div class="hero">
+    <div class="orbe" style="width:520px;height:520px;background:var(--teal);left:-160px;top:-120px"></div>
+    <div class="orbe" style="width:460px;height:460px;background:var(--violet);right:-140px;top:60px;animation-delay:-5s"></div>
+    <div class="orbe" style="width:380px;height:380px;background:var(--gold);left:40%;bottom:-260px;opacity:.25;animation-delay:-9s"></div>
+    <div class="malla"></div>
+    <div class="wrap hero-grid">
+      <div>
+        <span class="pildora"><i></i> Hecho para la construcción en el Perú</span>
+        <h1>Presupuestos de obra <em>precisos</em> en minutos.</h1>
+        <p class="lead">Arma tus análisis de precios unitarios con cuadrillas y rendimientos reales, calcula gastos generales, utilidad e IGV al instante y entrega PDF profesionales a tus clientes. Todo en la nube, con tu equipo.</p>
+        <div class="ctas"><a class="btn pri" href="app#registro">Empieza gratis →</a><a class="btn" href="#calculo">Ver cómo calcula</a></div>
+        <div class="confianza"><span><b>19</b> APU reales listos</span><span><b>55</b> recursos precargados</span><span><b>5</b> roles de usuario</span></div>
+      </div>
+      <div style="position:relative">
+        <div class="marco"><img src="assets/captura-apu.jpg" alt="Editor de presupuesto y análisis de precio unitario"></div>
+        <div class="flotante f1"><small>Total del presupuesto</small><b>S/ 41,649.93</b></div>
+        <div class="flotante f2"><small>Precio unitario</small><b>S/ 159.22 /m²</b></div>
+      </div>
     </div>
-    <nav id="menu">
-      <a href="#/inicio" data-r="inicio">▦ Panel</a>
-      <a href="#/presupuestos" data-r="presupuestos">◧ Presupuestos</a>
-      <a href="#/recursos" data-r="recursos">◈ Recursos</a>
-      <a href="#/biblioteca" data-r="biblioteca">❖ Biblioteca APU</a>
-      <a href="#/empresa" data-r="empresa">⚙ Empresa y datos</a>
-    </nav>
-    <div class="empresa-tag" id="empresaTag"></div>
-  </aside>
-  <main id="app"></main>
-  <div id="toast"></div>
-  <script src="semilla.js"></script>
-  <script src="app.js"></script>
+  </div>
+
+  <section id="funciones"><div class="wrap">
+    <div class="titulo-sec aparece"><span class="etiqueta">Todo en un solo lugar</span><h2>Lo que tu oficina técnica necesita</h2><p>Desde el catálogo de recursos hasta el PDF firmado, sin hojas de cálculo frágiles.</p></div>
+    <div class="funciones">
+      <div class="fun aparece" style="--c:var(--teal)"><div class="icono">◧</div><h3>APU por partida</h3><p>Cuadrilla, rendimiento y jornada: las horas-hombre se calculan solas, con herramientas como % de mano de obra.</p></div>
+      <div class="fun aparece" style="--c:var(--gold)"><div class="icono">∑</div><h3>Presupuesto completo</h3><p>Metrados, costo directo, gastos generales, utilidad e IGV con totales que se actualizan mientras escribes.</p></div>
+      <div class="fun aparece" style="--c:var(--coral)"><div class="icono">⎙</div><h3>PDF profesional</h3><p>Presupuesto y APU con tu logo y datos de empresa, listos para enviar al cliente.</p></div>
+      <div class="fun aparece" style="--c:var(--violet)"><div class="icono">⇪</div><h3>Precios desde Excel</h3><p>Importa listas de proveedores, compara ofertas y actualiza precios con historial de cada cambio.</p></div>
+      <div class="fun aparece" style="--c:#7ee081"><div class="icono">◉</div><h3>Tu equipo, con roles</h3><p>Invita a ingenieros y presupuestadores; cada uno ve y edita solo lo que le corresponde.</p></div>
+      <div class="fun aparece" style="--c:#4fb3ff"><div class="icono">☁</div><h3>En la nube, seguro</h3><p>Entra desde cualquier computadora. Cada empresa ve únicamente su información.</p></div>
+    </div>
+  </div></section>
+
+  <section id="calculo"><div class="wrap demo">
+    <div class="aparece">
+      <div class="titulo-sec" style="text-align:left;margin:0"><span class="etiqueta">Cálculo transparente</span><h2>Mueve los valores y mira el APU</h2>
+      <p>Así calcula BAP APU la mano de obra de una partida. Sin fórmulas ocultas.</p></div>
+      <ul class="lista">
+        <li><span><b>Cuadrilla × jornada ÷ rendimiento</b> da las horas-hombre por unidad.</span></li>
+        <li><span><b>Cambia un precio</b> en el catálogo y se recalculan todos los presupuestos enlazados.</span></li>
+        <li><span><b>Redondeos como en obra</b>: 4 decimales en cantidades, 2 en parciales.</span></li>
+      </ul>
+    </div>
+    <div class="calc aparece">
+      <label>Cuadrilla de operarios <b id="vCuad">2.0</b></label><input type="range" id="cuad" min="0.5" max="6" step="0.5" value="2">
+      <label>Rendimiento (m²/día) <b id="vRend">50</b></label><input type="range" id="rend" min="5" max="120" step="5" value="50">
+      <label>Precio hora-hombre (S/) <b id="vPrec">26.19</b></label><input type="range" id="prec" min="15" max="40" step="0.01" value="26.19">
+      <div class="formula" id="formula"></div>
+      <div class="resultado"><span>Costo de mano de obra por m²</span><b id="res">S/ 8.38</b></div>
+    </div>
+  </div></section>
+
+  <section style="padding-top:30px"><div class="wrap">
+    <div class="titulo-sec aparece"><span class="etiqueta">Empieza hoy</span><h2>Tres pasos y estás presupuestando</h2></div>
+    <div class="pasos">
+      <div class="paso aparece"><h3>Crea tu cuenta</h3><p>Registra tu empresa con su RUC. Recibes tu catálogo de recursos listo para usar.</p></div>
+      <div class="paso aparece"><h3>Arma el presupuesto</h3><p>Agrega partidas desde la biblioteca de APU, ajusta metrados y rendimientos.</p></div>
+      <div class="paso aparece"><h3>Entrega en PDF</h3><p>Exporta el presupuesto y los APU con tu logo, o en Excel para tu equipo.</p></div>
+    </div>
+  </div></section>
+
+  <section id="equipo" style="padding-top:30px"><div class="wrap">
+    <div class="titulo-sec aparece"><span class="etiqueta">Trabajo en equipo</span><h2>Un rol para cada persona</h2><p>Invita por correo y asigna permisos en segundos.</p></div>
+    <div class="roles aparece">
+      <div class="rol"><b>Administrador</b><small>Control total y usuarios</small></div>
+      <div class="rol"><b>Gerente</b><small>Todo, salvo usuarios</small></div>
+      <div class="rol"><b>Ingeniero</b><small>Presupuestos y precios</small></div>
+      <div class="rol"><b>Presupuestador</b><small>Arma presupuestos</small></div>
+      <div class="rol"><b>Consulta</b><small>Solo lectura</small></div>
+    </div>
+  </div></section>
+
+  <div class="final aparece" id="contacto">
+    <div class="orbe" style="width:300px;height:300px;background:var(--gold);right:-80px;top:-120px;opacity:.3"></div>
+    <h2>Deja las hojas de cálculo atrás.</h2>
+    <p>Crea tu cuenta gratis o escríbenos para una demostración con tu propio presupuesto.</p>
+    <div class="ctas" style="justify-content:center;margin:0"><a class="btn oro" href="app#registro">Crear cuenta gratis</a><a class="btn" href="https://wa.me/51904170143" target="_blank" rel="noopener">WhatsApp +51 904 170 143</a></div>
+  </div>
+
+  <footer><div class="wrap"><span>© BAP Soluciones Tecnológicas · Tecnología que simplifica y hace crecer tu negocio</span><span>contacto.bapsoluciones@gmail.com</span></div></footer>
+
+  <script>
+    const io = new IntersectionObserver((es) => es.forEach((e) => e.isIntersecting && (e.target.classList.add("visto"), io.unobserve(e.target))), { threshold: 0.12 });
+    document.querySelectorAll(".aparece").forEach((e) => io.observe(e));
+    const r4 = (n) => Math.round(n * 10000) / 10000, r2 = (n) => Math.round(n * 100) / 100;
+    function calc() {
+      const c = +cuad.value, r = +rend.value, p = +prec.value, hh = r4((c * 8) / r), tot = r2(hh * p);
+      vCuad.textContent = c.toFixed(1); vRend.textContent = r; vPrec.textContent = p.toFixed(2);
+      formula.innerHTML = `horas-hombre = ${c.toFixed(1)} × 8 h ÷ ${r} = <b>${hh.toFixed(4)} hh/m²</b><br>costo = ${hh.toFixed(4)} × S/ ${p.toFixed(2)} = <b>S/ ${tot.toFixed(2)}</b>`;
+      res.textContent = "S/ " + tot.toFixed(2);
+    }
+    [cuad, rend, prec].forEach((e) => e.addEventListener("input", calc)); calc();
+  </script>
 </body>
 </html>

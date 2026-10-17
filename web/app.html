@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BAP APU Profesional</title>
+  <meta name="description" content="Análisis de precios unitarios y presupuestos de obra">
+  <link rel="icon" href="assets/bap_isotipo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar" hidden>
+    <div class="marca">
+      <img src="assets/bap_isotipo.png" alt="">
+      <div><strong>BAP APU</strong><span>Profesional · Web</span></div>
+    </div>
+    <nav id="menu"></nav>
+    <div class="empresa-tag" id="empresaTag"></div>
+  </aside>
+  <main id="app"><p class="vacio">Cargando…</p></main>
+  <div id="toast"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="config.js"></script>
+  <script src="semilla.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
