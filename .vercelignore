@@ -1,0 +1,5 @@
+# Vercel solo publica la app web estática
+*
+!web
+!web/**
+!vercel.json
