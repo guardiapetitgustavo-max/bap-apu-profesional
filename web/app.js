@@ -144,13 +144,11 @@ function vAcceso(modo = "entrar") {
   $("#app").innerHTML = `<div class="acceso"><div class="acceso-card">
     <img src="assets/bap_logo_principal.png" alt="BAP" class="acceso-logo">
     <h1>${reg ? "Crea la cuenta de tu empresa" : modo === "olvido" ? "Recuperar contraseña" : "Ingresa a BAP APU"}</h1>
-    <p class="sub">${reg ? "Serás el administrador. Luego podrás invitar a tu equipo." : "Análisis de precios unitarios y presupuestos de obra"}</p>
+    <p class="sub">${reg ? "Solo 3 datos. Serás el administrador y luego podrás invitar a tu equipo." : "Análisis de precios unitarios y presupuestos de obra"}</p>
     <form id="formAcceso" class="campos-col">
-      ${reg ? `<label>Razón social<input name="empresa" required placeholder="Constructora ABC S.A.C."></label>
-      <label>RUC<input name="ruc" pattern="\\d{11}" placeholder="20123456789"></label>
-      <label>Tu nombre<input name="nombre" required></label>` : ""}
-      <label>Correo<input name="email" type="email" required autocomplete="email"></label>
-      ${modo !== "olvido" ? `<label>Contraseña<input name="password" type="password" required minlength="8" autocomplete="${reg ? "new-password" : "current-password"}"></label>` : ""}
+      ${reg ? `<label>Nombre de tu empresa<input name="empresa" required placeholder="Constructora ABC S.A.C." autocomplete="organization" autofocus></label>` : ""}
+      <label>Correo<input name="email" type="email" required autocomplete="email" ${reg ? "" : "autofocus"}></label>
+      ${modo !== "olvido" ? `<label>Contraseña ${reg ? "<small>(mínimo 8 caracteres)</small>" : ""}<span class="clave"><input name="password" type="password" required minlength="8" autocomplete="${reg ? "new-password" : "current-password"}"><button type="button" class="ver-clave" title="Mostrar contraseña">👁</button></span></label>` : ""}
       <button class="btn pri" type="submit">${reg ? "Crear cuenta" : modo === "olvido" ? "Enviar enlace" : "Ingresar"}</button>
     </form>
     <div class="acceso-links">
@@ -159,14 +157,18 @@ function vAcceso(modo = "entrar") {
     <p class="nota">¿Te invitaron? Usa "Crear cuenta" con el mismo correo de la invitación y entrarás a la empresa que te invitó.</p>
   </div></div>`;
   document.querySelectorAll("[data-modo]").forEach((a) => (a.onclick = (e) => { e.preventDefault(); vAcceso(a.dataset.modo); }));
+  document.querySelectorAll(".ver-clave").forEach((b) => (b.onclick = () => { const i = b.previousElementSibling; i.type = i.type === "password" ? "text" : "password"; }));
   $("#formAcceso").onsubmit = async (e) => {
     e.preventDefault();
     const d = Object.fromEntries(new FormData(e.target));
     const boton = e.target.querySelector("button"); boton.disabled = true;
     try {
       if (reg) {
-        const { data, error } = await sb.auth.signUp({ email: d.email, password: d.password, options: { data: { empresa: d.empresa, ruc: d.ruc, nombre: d.nombre }, emailRedirectTo: location.origin + "/app" } });
+        boton.textContent = "Creando tu cuenta…";
+        const { data, error } = await sb.auth.signUp({ email: d.email, password: d.password, options: { data: { empresa: d.empresa }, emailRedirectTo: location.origin + "/app" } });
         if (error) throw error;
+        // Si Supabase no exige confirmar el correo, entra directo.
+        if (!data.session && !(await sb.auth.signInWithPassword({ email: d.email, password: d.password })).error) return;
         if (!data.session) { $("#app").querySelector(".acceso-card").innerHTML = `<h1>Revisa tu correo</h1><p class="sub">Te enviamos un enlace a <strong>${esc(d.email)}</strong> para confirmar la cuenta. Luego vuelve aquí e ingresa.</p><button class="btn pri" onclick="location.reload()">Volver</button>`; return; }
       } else if (modo === "olvido") {
         const { error } = await sb.auth.resetPasswordForEmail(d.email, { redirectTo: location.origin + "/app" });
