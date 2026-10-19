@@ -113,3 +113,17 @@ input:disabled,select:disabled{opacity:.75}
   @page{margin:14mm}
 }
 [hidden]{display:none!important}
+
+/* App de escritorio */
+.instalar{background:linear-gradient(90deg,var(--gold),#f39c3b);color:#2b1c00;border:0}
+@media (display-mode: standalone){.instalar{display:none!important}}
+/* Cronograma */
+.cron td,.cron th{white-space:nowrap}
+.cron td.activo{color:#06121f;font-weight:600}
+.cron td.c0{background:rgba(33,196,184,.75)}.cron td.c1{background:rgba(247,184,68,.8)}.cron td.c2{background:rgba(143,123,255,.75)}.cron td.c3{background:rgba(255,107,107,.75)}
+.cron-tot td{font-weight:700;background:#0e1828}
+.curva{display:flex;gap:10px;align-items:flex-end;height:220px;padding:10px 4px 26px;position:relative;border-bottom:1px solid var(--line)}
+.mes{flex:1;height:100%;position:relative;display:flex;align-items:flex-end;justify-content:center}
+.barra-mes{width:60%;background:linear-gradient(180deg,var(--teal),rgba(33,196,184,.25));border-radius:8px 8px 0 0;min-height:2px}
+.punto{position:absolute;left:50%;width:14px;height:14px;margin:0 0 -7px -7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(247,184,68,.25)}
+.mes span{position:absolute;bottom:-22px;font-size:12px;color:var(--mute)}

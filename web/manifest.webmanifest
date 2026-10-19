@@ -1,0 +1,21 @@
+{
+  "name": "BAP APU Profesional",
+  "short_name": "BAP APU",
+  "description": "Presupuestos de obra y análisis de precios unitarios",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "background_color": "#0d1420",
+  "theme_color": "#0d1420",
+  "lang": "es-PE",
+  "icons": [
+    { "src": "assets/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icono-512-mask.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Presupuestos", "url": "/app#/presupuestos" },
+    { "name": "Recursos", "url": "/app#/recursos" }
+  ]
+}

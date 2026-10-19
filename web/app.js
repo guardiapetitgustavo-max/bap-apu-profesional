@@ -47,7 +47,11 @@ async function cargarTodo() {
   ]);
   Object.assign(S, { empresa, recursos: recursos.map(numRec), clientes, proveedores, presupuestos: presupuestos.map(numPres) });
   if (!S.recursos.length && puede("recursos")) await sembrarRecursos();
-  S.plantillas = window.SEMILLA.plantillas.map((p, i) => ({ id: "p" + i, ...plantillaANormal(p) }));
+  const propias = await q(sb.from("plantillas").select("*").not("empresa_id", "is", null).order("descripcion"));
+  S.plantillas = [
+    ...propias.map((x) => ({ id: "db" + x.id, dbId: x.id, propia: true, descripcion: x.descripcion, unidad: x.unidad, rendimiento: Number(x.rendimiento), herr: x.insumos?.herr ?? 0, insumos: x.insumos?.insumos ?? [] })),
+    ...window.SEMILLA.plantillas.map((p, i) => ({ id: "p" + i, ...plantillaANormal(p) })),
+  ];
   if (puede("usuarios")) await cargarUsuarios();
 }
 const numRec = (r) => ({ ...r, precio: Number(r.precio) });
@@ -196,7 +200,7 @@ const MENU = [
   ["biblioteca", "❖ Biblioteca APU", null], ["usuarios", "◉ Usuarios", "usuarios"], ["empresa", "⚙ Empresa", null],
 ];
 const RUTAS = { inicio: vInicio, presupuestos: vPresupuestos, presupuesto: vPresupuesto, recursos: vRecursos, recurso: vRecurso, importar: vImportar,
-  terceros: vTerceros, biblioteca: vBiblioteca, usuarios: vUsuarios, empresa: vEmpresa, imprimir: vImprimir };
+  terceros: vTerceros, biblioteca: vBiblioteca, usuarios: vUsuarios, empresa: vEmpresa, imprimir: vImprimir, cronograma: vCronograma };
 
 function render() {
   if (!S.perfil) return;
@@ -205,7 +209,7 @@ function render() {
   const impresion = r === "imprimir";
   document.body.classList.toggle("modo-impresion", impresion);
   $("#sidebar").hidden = impresion;
-  $("#menu").innerHTML = MENU.filter(([, , p]) => !p || puede(p)).map(([k, t]) => `<a href="#/${k}" class="${k === ({ presupuesto: "presupuestos", recurso: "recursos" }[r] || r) ? "on" : ""}">${t}</a>`).join("");
+  $("#menu").innerHTML = MENU.filter(([, , p]) => !p || puede(p)).map(([k, t]) => `<a href="#/${k}" class="${k === ({ presupuesto: "presupuestos", recurso: "recursos", cronograma: "presupuestos" }[r] || r) ? "on" : ""}">${t}</a>`).join("");
   $("#empresaTag").innerHTML = `<strong>${esc(S.empresa.razon_social)}</strong><br>RUC ${esc(S.empresa.ruc || "—")}<br>${esc(S.perfil.nombre)} · ${S.perfil.rol}<br><a href="#" id="salir">Cerrar sesión</a>`;
   $("#salir").onclick = async (e) => { e.preventDefault(); await sb.auth.signOut(); };
   $("#app").innerHTML = RUTAS[r](a, b);
@@ -253,7 +257,7 @@ function vPresupuesto(id, partidaId) {
   const sel = c.partidas.find((x) => x.p.id === partidaId) || c.partidas[0];
   const ro = sololectura("presupuestos");
   return `<div class="fila entre"><a href="#/presupuestos" class="btn mini">← Presupuestos</a>
-    <div class="fila"><button class="btn" id="csvPres">⬇ Excel (CSV)</button><a class="btn oro" href="#/imprimir/${pres.id}">🖨 PDF profesional</a>
+    <div class="fila"><button class="btn" id="csvPres">⬇ Excel (CSV)</button><a class="btn" href="#/cronograma/${pres.id}">📅 Cronograma</a>${puede("presupuestos") ? `<button class="btn" id="duplicarPres">⧉ Duplicar</button>` : ""}<a class="btn oro" href="#/imprimir/${pres.id}">🖨 PDF profesional</a>
     ${puede("presupuestos") ? `<button class="btn peligro" id="borrarPres">Eliminar</button>` : ""}</div></div>
   <h1 style="margin-top:14px"><input id="pNombre" value="${esc(pres.nombre)}" ${ro} class="titulo-input"></h1>
   <div class="card"><div class="campos">
@@ -280,7 +284,7 @@ function vPresupuesto(id, partidaId) {
 
 function editorAPU(pres, x, ro) {
   const p = x.p;
-  return `<div class="card"><h2>Análisis de precio unitario</h2>
+  return `<div class="card"><div class="fila entre"><h2>Análisis de precio unitario</h2>${puede("presupuestos") ? `<button class="btn mini" id="guardarPlantilla">★ Guardar como plantilla</button>` : ""}</div>
   <div class="campos">
     <label>Descripción<input class="apuCampo" data-k="descripcion" value="${esc(p.descripcion)}" ${ro}></label>
     <label>Unidad<input class="apuCampo" data-k="unidad" value="${esc(p.unidad)}" ${ro}></label>
@@ -406,7 +410,7 @@ function vTerceros() {
 function vBiblioteca() {
   return `<h1>Biblioteca de APU</h1><p class="sub">Plantillas reales con rendimiento y cuadrilla, listas para cargar en un presupuesto</p>
   <div class="card"><table><tr><th>Partida</th><th>Und</th><th class="num">Rendimiento</th><th class="num">Insumos</th><th class="num">P.U. actual</th></tr>
-  ${S.plantillas.map((p) => `<tr><td>${esc(p.descripcion)}</td><td>${esc(p.unidad)}</td><td class="num">${p.rendimiento}</td><td class="num">${p.insumos.length}</td><td class="num">${f2(calcPartida({ ...p, metrado: 1 }, 8).pu)}</td></tr>`).join("")}</table></div>`;
+  ${S.plantillas.map((p) => `<tr><td>${esc(p.descripcion)}${p.propia ? ' <span class="chip t-MO">Propia</span>' : ""}</td><td>${esc(p.unidad)}</td><td class="num">${p.rendimiento}</td><td class="num">${p.insumos.length}</td><td class="num">${f2(calcPartida({ ...p, metrado: 1 }, 8).pu)}</td></tr>`).join("")}</table></div>`;
 }
 
 function vUsuarios() {
@@ -461,6 +465,41 @@ function vImprimir(id) {
   </article>`).join("")}`;
 }
 
+// ---------- Cronograma valorizado ----------
+function cronograma(pres) {
+  const c = calcPresupuesto(pres);
+  const filas = c.partidas.map((x) => {
+    const ini = Math.max(1, Number(x.p.mesInicio) || 1), dur = Math.max(1, Number(x.p.meses) || 1), montos = {};
+    for (let m = ini; m < ini + dur; m++) montos[m] = r2(x.parcial / dur);
+    return { p: x.p, parcial: x.parcial, ini, dur, montos };
+  });
+  const total = Math.max(6, ...filas.map((f) => f.ini + f.dur - 1));
+  const meses = Array.from({ length: total }, (_, i) => i + 1);
+  const porMes = {}, pct = {}; let acum = 0;
+  meses.forEach((m) => { porMes[m] = r2(filas.reduce((s, f) => s + (f.montos[m] || 0), 0)); acum += porMes[m]; pct[m] = c.cd ? Math.min(100, (acum / c.cd) * 100) : 0; });
+  return { c, filas, meses, porMes, pct, factor: c.cd ? c.total / c.cd : 1 };
+}
+
+function vCronograma(id) {
+  const pres = S.presupuestos.find((p) => p.id === id);
+  if (!pres) return `<p class="vacio">Presupuesto no encontrado.</p>`;
+  const k = cronograma(pres), ro = sololectura("presupuestos");
+  const maxMes = Math.max(...k.meses.map((m) => k.porMes[m]), 1);
+  return `<div class="fila entre"><a href="#/presupuesto/${pres.id}" class="btn mini">← ${esc(pres.nombre)}</a><button class="btn" id="csvCron">⬇ Excel (CSV)</button></div>
+  <h1 style="margin-top:14px">Cronograma valorizado</h1><p class="sub">Define en qué mes empieza cada partida y cuántos meses dura; el monto se reparte por igual</p>
+  <div class="card"><table class="cron"><tr><th>Ítem</th><th>Partida</th><th class="num">Parcial</th><th>Inicio</th><th>Meses</th>${k.meses.map((m) => `<th class="num">Mes ${m}</th>`).join("")}</tr>
+  ${k.filas.map((f, n) => `<tr><td>${f.p.codigo}</td><td>${esc(f.p.descripcion)}</td><td class="num">${f2(f.parcial)}</td>
+    <td><input class="cronCampo" data-id="${f.p.id}" data-k="mesInicio" type="number" min="1" value="${f.ini}" ${ro} style="width:58px"></td>
+    <td><input class="cronCampo" data-id="${f.p.id}" data-k="meses" type="number" min="1" value="${f.dur}" ${ro} style="width:58px"></td>
+    ${k.meses.map((m) => `<td class="num ${f.montos[m] ? "activo c" + (n % 4) : ""}">${f.montos[m] ? f2(f.montos[m]) : ""}</td>`).join("")}</tr>`).join("")}
+  <tr class="cron-tot"><td></td><td>Costo directo del mes</td><td class="num">${f2(k.c.cd)}</td><td></td><td></td>${k.meses.map((m) => `<td class="num">${f2(k.porMes[m])}</td>`).join("")}</tr>
+  <tr class="cron-tot"><td></td><td>Con GG, utilidad e IGV</td><td class="num">${f2(k.c.total)}</td><td></td><td></td>${k.meses.map((m) => `<td class="num">${f2(k.porMes[m] * k.factor)}</td>`).join("")}</tr>
+  <tr class="cron-tot"><td></td><td>Avance acumulado</td><td></td><td></td><td></td>${k.meses.map((m) => `<td class="num">${k.pct[m].toFixed(1)}%</td>`).join("")}</tr></table></div>
+  <div class="card"><h2>Curva S y monto mensual</h2><div class="curva">${k.meses.map((m) => `<div class="mes"><div class="barra-mes" style="height:${(k.porMes[m] / maxMes) * 100}%"></div>
+    <div class="punto" style="bottom:${k.pct[m]}%" title="${k.pct[m].toFixed(1)}%"></div><span>M${m}</span></div>`).join("")}</div>
+    <div class="leyenda"><span><b style="background:var(--teal)"></b>Monto del mes</span><span><b style="background:var(--gold)"></b>Avance acumulado (curva S)</span></div></div>`;
+}
+
 // ---------- Eventos ----------
 function enlazar(ruta, a, b) {
   document.querySelectorAll("[data-ir]").forEach((e) => (e.onclick = () => (location.hash = e.dataset.ir)));
@@ -495,6 +534,28 @@ function enlazar(ruta, a, b) {
     on("#borrarPres", "click", async () => { if (!confirm("¿Eliminar este presupuesto?")) return;
       await q(sb.from("presupuestos").delete().eq("id", pres.id), "Presupuesto eliminado"); S.presupuestos = S.presupuestos.filter((p) => p !== pres); location.hash = "#/presupuestos"; });
     on("#csvPres", "click", () => exportarPresupuesto(pres));
+    on("#duplicarPres", "click", async () => {
+      const { nombre, fecha, cliente_id, jornada, gg, util, igv, partidas } = pres;
+      const copia = numPres(await q(sb.from("presupuestos").insert({ empresa_id: S.empresa.id, nombre: nombre + " (copia)", fecha, cliente_id, jornada, gg, util, igv, partidas }).select().single(), "Presupuesto duplicado"));
+      S.presupuestos.push(copia); location.hash = "#/presupuesto/" + copia.id;
+    });
+    on("#guardarPlantilla", "click", async () => {
+      const p = partida(); if (!p) return;
+      const descripcion = prompt("Nombre de la plantilla", p.descripcion); if (!descripcion) return;
+      const fila = await q(sb.from("plantillas").insert({ empresa_id: S.empresa.id, descripcion, unidad: p.unidad, rendimiento: p.rendimiento, insumos: { herr: p.herr, insumos: p.insumos } }).select().single(), "Plantilla guardada en la biblioteca");
+      S.plantillas.unshift({ id: "db" + fila.id, dbId: fila.id, propia: true, descripcion, unidad: p.unidad, rendimiento: p.rendimiento, herr: p.herr, insumos: p.insumos.map((i) => ({ ...i })) });
+    });
+  }
+
+  if (ruta === "cronograma") {
+    const pres = S.presupuestos.find((p) => p.id === a);
+    if (!pres) return;
+    on(".cronCampo", "change", (e) => { const p = pres.partidas.find((x) => x.id === e.target.dataset.id);
+      p[e.target.dataset.k] = Math.max(1, Math.round(Number(e.target.value) || 1)); guardarPres(pres); render(); });
+    on("#csvCron", "click", () => { const c = cronograma(pres);
+      descargar(`Cronograma ${pres.nombre.replace(/[^\w\- ]+/g, "")}.csv`, csv([["Ítem", "Partida", "Parcial", ...c.meses.map((m) => "Mes " + m)],
+        ...c.filas.map((f) => [f.p.codigo, f.p.descripcion, f2(f.parcial), ...c.meses.map((m) => (f.montos[m] ? f2(f.montos[m]) : ""))]),
+        ["", "Costo directo del mes", "", ...c.meses.map((m) => f2(c.porMes[m]))], ["", "Acumulado %", "", ...c.meses.map((m) => c.pct[m].toFixed(1) + "%")]]), "text/csv"); });
   }
 
   if (ruta === "recursos") {
@@ -580,3 +641,10 @@ sb.auth.onAuthStateChange((evento) => {
   if (evento === "SIGNED_OUT") { Object.assign(S, { sesion: null, perfil: null }); vAcceso(); }
 });
 arrancar();
+
+// ---------- App de escritorio (PWA) ----------
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+let eventoInstalar = null;
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); eventoInstalar = e; $("#instalarApp").hidden = false; });
+$("#instalarApp").onclick = async () => { if (!eventoInstalar) return; eventoInstalar.prompt(); await eventoInstalar.userChoice; eventoInstalar = null; $("#instalarApp").hidden = true; };
+window.addEventListener("appinstalled", () => aviso("BAP APU quedó instalado como aplicación"));
