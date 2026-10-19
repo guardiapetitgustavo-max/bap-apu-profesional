@@ -1,0 +1,20 @@
+# Consulta la base de Supabase cada 3 días para que el plan gratuito no la pause por inactividad.
+name: Mantener Supabase activo
+
+on:
+  schedule:
+    - cron: "17 13 */3 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar la base
+        env:
+          URL: https://sowstyintzdjsljdwyve.supabase.co
+          KEY: sb_publishable_wcJ1WzX9iACRdjjM5yLJOQ_bmlOlapG
+        run: |
+          codigo=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/plantillas?select=id&limit=1" -H "apikey: $KEY")
+          echo "Respuesta de Supabase: $codigo"
+          test "$codigo" = "200"
