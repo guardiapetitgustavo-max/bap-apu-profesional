@@ -1,5 +1,5 @@
 // Service worker: guarda la interfaz para abrir rápido; los datos siempre vienen de Supabase.
-const VERSION = "bap-apu-v3";
+const VERSION = "bap-apu-v4";
 const ARCHIVOS = ["/app", "/app.html", "/app.js", "/styles.css", "/config.js", "/semilla.js", "/manifest.webmanifest",
   "/assets/bap_isotipo.png", "/assets/bap_logo_principal.png", "/assets/icono-192.png", "/assets/icono-512.png"];
 self.addEventListener("install", (e) => e.waitUntil(caches.open(VERSION).then((c) => Promise.allSettled(ARCHIVOS.map((a) => c.add(a)))).then(() => self.skipWaiting())));

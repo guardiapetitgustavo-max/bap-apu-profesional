@@ -324,6 +324,7 @@ function vPresupuesto(id, partidaId) {
     <div class="card"><div class="fila entre"><h2>Partidas</h2>
       ${puede("presupuestos") ? `<div class="fila"><select id="plantillaSel"><option value="">Agregar desde biblioteca…</option>${S.plantillas.map((p) => `<option value="${p.id}">${esc(p.descripcion)}</option>`).join("")}</select>
       <button class="btn mini" id="partidaVacia">+ Vacía</button></div>` : ""}</div>
+      ${puede("presupuestos") ? `<form class="ia-fila" id="formIA"><input id="iaDesc" maxlength="300" placeholder="Describe una partida, ej. Tarrajeo de muros interiores e=1.5 cm" required><button class="btn ia" id="iaSugerir">✨ Sugerir con IA</button></form>` : ""}
       ${c.partidas.length ? `<table><tr><th>Ítem</th><th>Descripción</th><th>Und</th><th class="num">Metrado</th><th class="num">P.U.</th><th class="num">Parcial</th><th></th></tr>
       ${c.partidas.map((x) => `<tr class="clic ${sel && x.p.id === sel.p.id ? "sel" : ""}" data-partida="${x.p.id}"><td>${x.p.codigo}</td><td>${esc(x.p.descripcion)}</td><td>${esc(x.p.unidad)}</td>
         <td class="num"><input class="metrado" data-id="${x.p.id}" type="number" step="0.01" value="${x.p.metrado}" ${ro} style="width:90px;text-align:right"></td>
@@ -343,6 +344,7 @@ function editorAPU(pres, x, ro) {
     <label>Unidad<input class="apuCampo" data-k="unidad" value="${esc(p.unidad)}" ${ro}></label>
     <label>Rendimiento (${esc(p.unidad)}/día)<input class="apuCampo" data-k="rendimiento" type="number" step="0.01" value="${p.rendimiento}" ${ro}></label>
     <label>Herramientas % M.O.<input class="apuCampo" data-k="herr" type="number" step="0.1" value="${p.herr}" ${ro}></label></div>
+  ${p.iaNota ? `<div class="ia-nota"><b>✨ Sugerida por IA, revísala antes de usarla.</b> ${esc(p.iaNota)} ${puede("presupuestos") ? `<button class="btn mini" id="iaRevisada">✓ Revisada</button>` : ""}</div>` : ""}
   <div class="fila entre" style="margin:12px 0"><span>${esc(p.codigo)} · ${esc(p.descripcion)}</span><span class="pu">${sol(x.pu)} <small>/ ${esc(p.unidad)}</small></span></div>
   <table><tr><th>Tipo</th><th>Insumo</th><th>Und</th><th class="num">Cuadrilla</th><th class="num">Cantidad</th><th class="num">Precio</th><th class="num">Parcial</th><th></th></tr>
   ${x.filas.map((f, k) => `<tr><td>${chipTipo(f.i.tipo)}</td><td>${esc(f.i.nombre)}${f.i.precio != null ? ' <small class="oro">(precio fijo)</small>' : ""}</td><td>${esc(f.i.unidad)}</td>
@@ -623,6 +625,24 @@ function enlazar(ruta, a, b) {
       const np = partidaDesdePlantilla(pl); pres.partidas.push(np); numerar(pres); guardarPres(pres); location.hash = `#/presupuesto/${pres.id}/${np.id}`; });
     on("#partidaVacia", "click", () => { const np = { id: nid(), codigo: "", descripcion: "Nueva partida", unidad: "m2", metrado: 1, rendimiento: 10, herr: 3, insumos: [] };
       pres.partidas.push(np); numerar(pres); guardarPres(pres); location.hash = `#/presupuesto/${pres.id}/${np.id}`; });
+    on("#formIA", "submit", async (e) => {
+      e.preventDefault();
+      const descripcion = $("#iaDesc").value.trim(), boton = $("#iaSugerir");
+      if (!descripcion) return;
+      boton.disabled = true; boton.textContent = "✨ Pensando…";
+      try {
+        const { data, error } = await sb.functions.invoke("sugerir-apu", { body: { descripcion, jornada: pres.jornada,
+          recursos: S.recursos.map(({ id, nombre, unidad, tipo, precio }) => ({ id, nombre, unidad, tipo, precio })) } });
+        if (error) { let msg = error.message; try { msg = (await error.context.json()).error || msg; } catch {} throw new Error(msg); }
+        const s = data.apu;
+        const np = { id: nid(), codigo: "", descripcion: s.descripcion || descripcion, unidad: s.unidad || "und", metrado: 1, rendimiento: s.rendimiento, herr: s.herr,
+          insumos: s.insumos, iaNota: s.nota || "Revisa rendimiento, cuadrillas y cantidades." };
+        pres.partidas.push(np); numerar(pres); guardarPres(pres);
+        aviso("Partida sugerida: revísala y ajusta el metrado");
+        location.hash = `#/presupuesto/${pres.id}/${np.id}`;
+      } catch (err) { aviso(err.message, true); boton.disabled = false; boton.textContent = "✨ Sugerir con IA"; }
+    });
+    on("#iaRevisada", "click", cambio(() => delete partida().iaNota));
     on(".apuCampo", "change", cambio((e) => { partida()[e.target.dataset.k] = e.target.type === "number" ? Number(e.target.value) || 0 : e.target.value; }));
     on(".insCampo", "change", cambio((e) => (partida().insumos[e.target.dataset.n][e.target.dataset.k] = Number(e.target.value) || 0)));
     on(".insQuitar", "click", cambio((e) => partida().insumos.splice(Number(e.target.dataset.n), 1)));
