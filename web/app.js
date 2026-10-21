@@ -109,6 +109,32 @@ function calcPresupuesto(pres) {
   const subtotal = r2(cd + gg + util), igv = r2((subtotal * pres.igv) / 100);
   return { partidas, cd, gg, util, subtotal, igv, total: r2(subtotal + igv) };
 }
+// Insumos de todo el presupuesto: cantidad del APU × metrado, agrupados por recurso (o nombre+unidad).
+function calcInsumos(pres) {
+  const c = calcPresupuesto(pres);
+  const mapa = new Map();
+  let herramientas = 0;
+  c.partidas.forEach((x) => {
+    const met = Number(x.p.metrado) || 0;
+    herramientas += x.herramientas * met;
+    x.filas.forEach((f) => {
+      const rec = f.i.recursoId != null ? recurso(f.i.recursoId) : null;
+      const clave = rec ? "r" + rec.id : "n" + norm(f.i.nombre) + "|" + norm(f.i.unidad);
+      if (!mapa.has(clave)) mapa.set(clave, { nombre: rec?.nombre ?? f.i.nombre, unidad: rec?.unidad ?? f.i.unidad, tipo: TIPOS.includes(f.i.tipo) ? f.i.tipo : "Material", cantidad: 0, costo: 0, partidas: new Set() });
+      const g = mapa.get(clave);
+      g.cantidad += f.cantidad * met; g.costo += f.cantidad * f.precio * met; g.partidas.add(x.p.codigo);
+    });
+  });
+  const lista = [...mapa.values()].map((g) => ({ ...g, cantidad: r4(g.cantidad), costo: r2(g.costo), precio: g.cantidad ? r2(g.costo / g.cantidad) : 0, partidas: [...g.partidas] }))
+    .sort((a, b) => b.costo - a.costo);
+  const grupos = TIPOS.map((t) => ({ tipo: t, items: lista.filter((g) => g.tipo === t) })).map((g) => ({ ...g, total: r2(g.items.reduce((s, i) => s + i.costo, 0)) }));
+  const esHora = (u) => /^h/i.test(String(u).trim());
+  const hh = r2(lista.filter((g) => g.tipo === "Mano de Obra" && esHora(g.unidad)).reduce((s, g) => s + g.cantidad, 0));
+  const hm = r2(lista.filter((g) => g.tipo === "Equipo" && esHora(g.unidad)).reduce((s, g) => s + g.cantidad, 0));
+  herramientas = r2(herramientas);
+  const total = r2(grupos.reduce((s, g) => s + g.total, 0) + herramientas);
+  return { c, lista, grupos, hh, hm, herramientas, total, jornadas: r2(hh / (pres.jornada || 8)) };
+}
 
 // ---------- Guardado ----------
 const pendientes = new Map();
@@ -202,7 +228,7 @@ const MENU = [
   ["biblioteca", "❖ Biblioteca APU", null], ["usuarios", "◉ Usuarios", "usuarios"], ["empresa", "⚙ Empresa", null],
 ];
 const RUTAS = { inicio: vInicio, presupuestos: vPresupuestos, presupuesto: vPresupuesto, recursos: vRecursos, recurso: vRecurso, importar: vImportar,
-  terceros: vTerceros, biblioteca: vBiblioteca, usuarios: vUsuarios, empresa: vEmpresa, imprimir: vImprimir, cronograma: vCronograma };
+  terceros: vTerceros, biblioteca: vBiblioteca, usuarios: vUsuarios, empresa: vEmpresa, imprimir: vImprimir, cronograma: vCronograma, insumos: vInsumos };
 
 function render() {
   if (!S.perfil) return;
@@ -211,7 +237,7 @@ function render() {
   const impresion = r === "imprimir";
   document.body.classList.toggle("modo-impresion", impresion);
   $("#sidebar").hidden = impresion;
-  $("#menu").innerHTML = MENU.filter(([, , p]) => !p || puede(p)).map(([k, t]) => `<a href="#/${k}" class="${k === ({ presupuesto: "presupuestos", recurso: "recursos", cronograma: "presupuestos" }[r] || r) ? "on" : ""}">${t}</a>`).join("");
+  $("#menu").innerHTML = MENU.filter(([, , p]) => !p || puede(p)).map(([k, t]) => `<a href="#/${k}" class="${k === ({ presupuesto: "presupuestos", recurso: "recursos", cronograma: "presupuestos", insumos: "presupuestos" }[r] || r) ? "on" : ""}">${t}</a>`).join("");
   $("#empresaTag").innerHTML = `<strong>${esc(S.empresa.razon_social)}</strong><br>RUC ${esc(S.empresa.ruc || "—")}<br>${esc(S.perfil.nombre)} · ${S.perfil.rol}<br><a href="#" id="salir">Cerrar sesión</a>`;
   $("#salir").onclick = async (e) => { e.preventDefault(); await sb.auth.signOut(); };
   $("#app").innerHTML = RUTAS[r](a, b);
@@ -259,7 +285,7 @@ function vPresupuesto(id, partidaId) {
   const sel = c.partidas.find((x) => x.p.id === partidaId) || c.partidas[0];
   const ro = sololectura("presupuestos");
   return `<div class="fila entre"><a href="#/presupuestos" class="btn mini">← Presupuestos</a>
-    <div class="fila"><button class="btn" id="csvPres">⬇ Excel (CSV)</button><a class="btn" href="#/cronograma/${pres.id}">📅 Cronograma</a>${puede("presupuestos") ? `<button class="btn" id="duplicarPres">⧉ Duplicar</button>` : ""}<a class="btn oro" href="#/imprimir/${pres.id}">🖨 PDF profesional</a>
+    <div class="fila"><button class="btn" id="csvPres">⬇ Excel (CSV)</button><a class="btn" href="#/insumos/${pres.id}">🧱 Insumos</a><a class="btn" href="#/cronograma/${pres.id}">📅 Cronograma</a>${puede("presupuestos") ? `<button class="btn" id="duplicarPres">⧉ Duplicar</button>` : ""}<a class="btn oro" href="#/imprimir/${pres.id}">🖨 PDF profesional</a>
     ${puede("presupuestos") ? `<button class="btn peligro" id="borrarPres">Eliminar</button>` : ""}</div></div>
   <h1 style="margin-top:14px"><input id="pNombre" value="${esc(pres.nombre)}" ${ro} class="titulo-input"></h1>
   <div class="card"><div class="campos">
@@ -442,6 +468,7 @@ function vImprimir(id) {
   if (!pres) return `<p class="vacio">Presupuesto no encontrado.</p>`;
   const c = calcPresupuesto(pres);
   const cli = S.clientes.find((x) => x.id === pres.cliente_id);
+  const ins = calcInsumos(pres);
   const cab = `<header class="doc-cab"><img src="assets/bap_logo_principal.png" alt=""><div><strong>${esc(S.empresa.razon_social)}</strong><br>RUC ${esc(S.empresa.ruc || "—")}</div></header>`;
   setTimeout(() => window.print(), 600);
   return `<div class="no-print fila" style="margin-bottom:14px"><a class="btn" href="#/presupuesto/${pres.id}">← Volver</a><button class="btn oro" onclick="print()">🖨 Imprimir / Guardar PDF</button>
@@ -457,6 +484,14 @@ function vImprimir(id) {
       <tr><td>IGV (${pres.igv}%)</td><td class="num">${sol(c.igv)}</td></tr><tr class="doc-total"><td>TOTAL</td><td class="num">${sol(c.total)}</td></tr></table>
     <div class="doc-firma"><span>${esc(S.perfil.nombre)}</span><small>${esc(S.empresa.razon_social)}</small></div>
   </article>
+  ${ins.lista.length ? `<article class="doc salto">${cab}<h2 class="doc-titulo">RELACIÓN DE INSUMOS</h2>
+    <table class="doc-datos"><tr><td><b>Obra:</b> ${esc(pres.nombre)}</td><td><b>Horas-hombre:</b> ${f2(ins.hh)} hh · <b>Horas-máquina:</b> ${f2(ins.hm)} hm</td></tr></table>
+    ${ins.grupos.filter((g) => g.items.length).map((g) => `<h3 class="doc-grupo">${g.tipo.toUpperCase()}</h3><table class="doc-tabla"><thead><tr><th>Descripción</th><th>Und.</th><th class="num">Cantidad</th><th class="num">Precio</th><th class="num">Parcial (S/)</th></tr></thead><tbody>
+      ${g.items.map((i) => `<tr><td>${esc(i.nombre)}</td><td>${esc(i.unidad)}</td><td class="num">${i.cantidad.toLocaleString("es-PE", { maximumFractionDigits: 4 })}</td><td class="num">${f2(i.precio)}</td><td class="num">${f2(i.costo)}</td></tr>`).join("")}
+      ${g.tipo === "Mano de Obra" && ins.herramientas ? `<tr><td>Herramientas manuales</td><td>glb</td><td></td><td></td><td class="num">${f2(ins.herramientas)}</td></tr>` : ""}
+      <tr class="doc-sub"><td colspan="4">Subtotal ${g.tipo}</td><td class="num">${f2(g.total + (g.tipo === "Mano de Obra" ? ins.herramientas : 0))}</td></tr></tbody></table>`).join("")}
+    <table class="doc-resumen"><tr class="doc-total"><td>TOTAL INSUMOS</td><td class="num">${sol(ins.total)}</td></tr></table>
+  </article>` : ""}
   ${c.partidas.map((x) => `<article class="doc salto">${cab}<h2 class="doc-titulo">ANÁLISIS DE PRECIOS UNITARIOS</h2>
     <table class="doc-datos"><tr><td><b>Partida:</b> ${x.p.codigo} ${esc(x.p.descripcion)}</td><td><b>Und.:</b> ${esc(x.p.unidad)}</td></tr>
     <tr><td><b>Rendimiento:</b> ${x.p.rendimiento} ${esc(x.p.unidad)}/día · Jornada ${pres.jornada} h</td><td><b>Costo unitario:</b> ${sol(x.pu)}</td></tr></table>
@@ -465,6 +500,39 @@ function vImprimir(id) {
       ${t === "Mano de Obra" && x.herramientas ? `<tr><td>Herramientas manuales</td><td>%MO</td><td></td><td class="num">${x.p.herr}</td><td class="num">${f2(x.por["Mano de Obra"])}</td><td class="num">${f2(x.herramientas)}</td></tr>` : ""}
       <tr class="doc-sub"><td colspan="5">Subtotal ${t}</td><td class="num">${f2(x.por[t] + (t === "Mano de Obra" ? x.herramientas : 0))}</td></tr></tbody></table>`).join("")}
   </article>`).join("")}`;
+}
+
+// ---------- Insumos consolidados ----------
+function vInsumos(id) {
+  const pres = S.presupuestos.find((p) => p.id === id);
+  if (!pres) return `<p class="vacio">Presupuesto no encontrado.</p>`;
+  const k = calcInsumos(pres);
+  const max = Math.max(...k.grupos.map((g) => g.total), 1);
+  return `<div class="fila entre"><a href="#/presupuesto/${pres.id}" class="btn mini">← ${esc(pres.nombre)}</a><div class="fila"><button class="btn" id="csvIns">⬇ Excel (CSV)</button><a class="btn oro" href="#/imprimir/${pres.id}">🖨 PDF profesional</a></div></div>
+  <h1 style="margin-top:14px">Insumos consolidados</h1><p class="sub">Todo lo que necesita la obra: cantidad del APU × metrado de cada partida, sumado por recurso</p>
+  <div class="kpis">
+    <div class="kpi" style="--c:var(--gold)"><span>Costo total de insumos</span><b>${sol(k.total)}</b></div>
+    <div class="kpi" style="--c:var(--teal)"><span>Horas-hombre</span><b>${f2(k.hh)} hh</b><small class="kpi-nota">${f2(k.jornadas)} jornadas de ${pres.jornada} h</small></div>
+    <div class="kpi" style="--c:var(--violet)"><span>Horas-máquina</span><b>${f2(k.hm)} hm</b></div>
+    <div class="kpi" style="--c:var(--coral)"><span>Insumos distintos</span><b>${k.lista.length}</b></div>
+  </div>
+  <div class="card"><h2>Peso por tipo</h2>${k.grupos.map((g) => `<div class="tipo-barra"><span>${g.tipo}</span><div><i style="width:${(g.total / max) * 100}%;background:${COLOR[g.tipo]}"></i></div><b class="num">${sol(g.total)}</b></div>`).join("")}</div>
+  ${k.lista.length ? k.grupos.filter((g) => g.items.length).map((g) => `<div class="card grupo-ins" style="--c:${COLOR[g.tipo]}"><div class="fila entre"><h2>${chipTipo(g.tipo)} ${g.tipo}</h2><span class="pu-mini">${sol(g.total + (g.tipo === "Mano de Obra" ? k.herramientas : 0))}</span></div>
+    <table><tr><th>Insumo</th><th>Und</th><th class="num">Cantidad</th><th class="num">Precio prom.</th><th class="num">Costo</th><th class="num">%</th><th>Partidas</th></tr>
+    ${g.items.map((i) => `<tr><td><strong>${esc(i.nombre)}</strong></td><td>${esc(i.unidad)}</td><td class="num">${i.cantidad.toLocaleString("es-PE", { maximumFractionDigits: 4 })}</td><td class="num">${f2(i.precio)}</td><td class="num">${f2(i.costo)}</td><td class="num">${k.total ? ((i.costo / k.total) * 100).toFixed(1) : "0.0"}%</td><td><small class="sub">${i.partidas.join(", ")}</small></td></tr>`).join("")}
+    ${g.tipo === "Mano de Obra" && k.herramientas ? `<tr><td>Herramientas manuales (% de M.O.)</td><td>glb</td><td></td><td></td><td class="num">${f2(k.herramientas)}</td><td class="num">${k.total ? ((k.herramientas / k.total) * 100).toFixed(1) : "0.0"}%</td><td></td></tr>` : ""}</table></div>`).join("")
+    : `<div class="card"><p class="vacio">Este presupuesto aún no tiene insumos.</p></div>`}
+  <p class="sub nota-calc">El total puede diferir en céntimos del costo directo (${sol(k.c.cd)}) porque los precios unitarios se redondean por partida.</p>`;
+}
+
+function exportarInsumos(pres) {
+  const k = calcInsumos(pres);
+  const filas = [[S.empresa.razon_social, "RUC " + (S.empresa.ruc || "")], [pres.nombre, "Insumos consolidados"], [], ["Tipo", "Insumo", "Unidad", "Cantidad", "Precio promedio", "Costo", "Partidas"]];
+  k.grupos.forEach((g) => { g.items.forEach((i) => filas.push([g.tipo, i.nombre, i.unidad, i.cantidad, i.precio.toFixed(2), i.costo.toFixed(2), i.partidas.join(" ")]));
+    if (g.tipo === "Mano de Obra" && k.herramientas) filas.push([g.tipo, "Herramientas manuales", "glb", "", "", k.herramientas.toFixed(2), ""]);
+    filas.push(["", "Subtotal " + g.tipo, "", "", "", (g.total + (g.tipo === "Mano de Obra" ? k.herramientas : 0)).toFixed(2), ""]); });
+  filas.push([], ["", "TOTAL INSUMOS", "", "", "", k.total.toFixed(2)], ["", "Horas-hombre", "hh", k.hh], ["", "Horas-máquina", "hm", k.hm]);
+  descargar(`Insumos ${pres.nombre.replace(/[^\w\- ]+/g, "")}.csv`, csv(filas), "text/csv");
 }
 
 // ---------- Cronograma valorizado ----------
@@ -547,6 +615,11 @@ function enlazar(ruta, a, b) {
       const fila = await q(sb.from("plantillas").insert({ empresa_id: S.empresa.id, descripcion, unidad: p.unidad, rendimiento: p.rendimiento, insumos: { herr: p.herr, insumos: p.insumos } }).select().single(), "Plantilla guardada en la biblioteca");
       S.plantillas.unshift({ id: "db" + fila.id, dbId: fila.id, propia: true, descripcion, unidad: p.unidad, rendimiento: p.rendimiento, herr: p.herr, insumos: p.insumos.map((i) => ({ ...i })) });
     });
+  }
+
+  if (ruta === "insumos") {
+    const pres = S.presupuestos.find((p) => p.id === a);
+    if (pres) on("#csvIns", "click", () => exportarInsumos(pres));
   }
 
   if (ruta === "cronograma") {
