@@ -18,7 +18,32 @@ const chipTipo = (t) => `<span class="chip t-${t === "Mano de Obra" ? "MO" : t}"
 // ---------- Estado ----------
 const S = { sesion: null, perfil: null, empresa: null, recursos: [], clientes: [], proveedores: [], presupuestos: [], plantillas: [], usuarios: [], invitaciones: [], importacion: null };
 
+// ---------- Suscripción ----------
+const WHATSAPP = "51904170143";
+const PLANES = [
+  { id: "basico", nombre: "Básico", precio: 59, color: "var(--teal)", detalle: "1 usuario · presupuestos ilimitados · PDF y Excel" },
+  { id: "pro", nombre: "Profesional", precio: 129, color: "var(--gold)", detalle: "Hasta 5 usuarios con roles · importación Excel · asistente IA" },
+  { id: "empresa", nombre: "Empresa", precio: 299, color: "var(--violet)", detalle: "Hasta 20 usuarios · soporte prioritario · capacitación" },
+];
+function suscripcion() {
+  const e = S.empresa || {}, ahora = Date.now();
+  if (!e.prueba_hasta) return { activa: true, enPrueba: false, dias: null };
+  const prueba = new Date(e.prueba_hasta).getTime(), pagada = e.activa_hasta ? new Date(e.activa_hasta).getTime() : 0;
+  const fin = Math.max(prueba, pagada);
+  return { activa: ahora < fin, enPrueba: ahora < prueba && !(ahora < pagada), dias: Math.ceil((fin - ahora) / 864e5), fin: new Date(fin) };
+}
+const enlaceWhatsApp = (plan) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(`Hola, quiero activar el plan ${plan || ""} de BAP APU Profesional para mi empresa ${S.empresa?.razon_social || ""}${S.empresa?.ruc ? " (RUC " + S.empresa.ruc + ")" : ""}. Pagaré por Yape, Plin o transferencia.`)}`;
+function bannerSuscripcion() {
+  const s = suscripcion();
+  if (s.activa && !(s.enPrueba && s.dias <= 5)) return "";
+  if (s.activa) return `<div class="aviso-plan suave"><span>⏳ Te quedan <b>${s.dias} día${s.dias === 1 ? "" : "s"}</b> de prueba gratis.</span><a class="btn mini oro" href="${enlaceWhatsApp("")}" target="_blank" rel="noopener">Activar mi plan por WhatsApp</a></div>`;
+  return `<div class="aviso-plan"><div><h2>Tu prueba gratis terminó</h2><p>Tus datos están a salvo. Por ahora la app está en <b>solo lectura</b>: puedes ver, imprimir y exportar, pero no editar. Elige un plan y paga por <b>Yape, Plin o transferencia</b>; lo activamos el mismo día.</p></div>
+    <div class="planes-mini">${PLANES.map((p) => `<a class="plan-mini" style="--c:${p.color}" href="${enlaceWhatsApp(p.nombre)}" target="_blank" rel="noopener"><b>${p.nombre}</b><span class="precio-mini">S/ ${p.precio}<small>/mes</small></span><small>${p.detalle}</small></a>`).join("")}</div>
+    <a class="btn whatsapp" href="${enlaceWhatsApp("")}" target="_blank" rel="noopener">💬 Pagar por WhatsApp +51 904 170 143</a></div>`;
+}
+
 function puede(accion) {
+  if (S.empresa && !suscripcion().activa) return false;
   const rol = S.perfil?.rol;
   if (rol === "Administrador") return true;
   if (rol === "Gerente") return accion !== "usuarios";
@@ -240,7 +265,7 @@ function render() {
   $("#menu").innerHTML = MENU.filter(([, , p]) => !p || puede(p)).map(([k, t]) => `<a href="#/${k}" class="${k === ({ presupuesto: "presupuestos", recurso: "recursos", cronograma: "presupuestos", insumos: "presupuestos" }[r] || r) ? "on" : ""}">${t}</a>`).join("");
   $("#empresaTag").innerHTML = `<strong>${esc(S.empresa.razon_social)}</strong><br>RUC ${esc(S.empresa.ruc || "—")}<br>${esc(S.perfil.nombre)} · ${S.perfil.rol}<br><a href="#" id="salir">Cerrar sesión</a>`;
   $("#salir").onclick = async (e) => { e.preventDefault(); await sb.auth.signOut(); };
-  $("#app").innerHTML = RUTAS[r](a, b);
+  $("#app").innerHTML = (impresion ? "" : bannerSuscripcion()) + RUTAS[r](a, b);
   enlazar(r, a, b);
 }
 window.addEventListener("hashchange", render);
@@ -458,6 +483,9 @@ function vEmpresa() {
   const ed = sololectura("empresa");
   return `<h1>Empresa</h1><p class="sub">Datos que aparecen en tus PDF</p>
   <div class="card"><div class="campos"><label>Razón social<input id="eNombre" value="${esc(S.empresa.razon_social)}" ${ed}></label><label>RUC<input id="eRuc" value="${esc(S.empresa.ruc || "")}" ${ed}></label></div></div>
+  <div class="card"><h2>Plan</h2>${(() => { const s = suscripcion(), plan = PLANES.find((p) => p.id === S.empresa.plan);
+    return s.dias == null ? `<p>Plan activo.</p>` : `<p>${s.activa ? (s.enPrueba ? `Prueba gratis` : `Plan <b>${plan?.nombre || S.empresa.plan}</b>`) + ` vigente hasta el <b>${s.fin.toLocaleDateString("es-PE")}</b> (${s.dias} día${s.dias === 1 ? "" : "s"}).` : `Tu acceso venció el <b>${s.fin.toLocaleDateString("es-PE")}</b>. La app está en solo lectura.`}</p>
+    <div class="fila"><a class="btn oro" href="${enlaceWhatsApp(plan?.nombre || "")}" target="_blank" rel="noopener">💬 ${s.activa && !s.enPrueba ? "Renovar" : "Activar"} por WhatsApp</a><span class="sub" style="margin:0">Yape, Plin o transferencia</span></div>`; })()}</div>
   <div class="card"><h2>Mi cuenta</h2><p>${esc(S.perfil.nombre)} · ${esc(S.perfil.email)} · ${S.perfil.rol}</p><button class="btn" id="cambiarClave">Cambiar contraseña</button></div>
   <div class="card"><h2>Exportar datos</h2><div class="fila"><button class="btn" id="exportarTodo">⬇ Descargar todos mis datos (.json)</button></div></div>`;
 }
